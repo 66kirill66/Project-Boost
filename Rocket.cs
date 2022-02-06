@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 
 public class Rocket : MonoBehaviour {
 
-    [SerializeField] float rcsThrust = 100f;  //[SerializeField] изметить в инспекторе(да) не меняется в других кодах public (да)
+    [SerializeField] float rcsThrust = 100f;  //[SerializeField] change in inspector (yes)  public (not)
     [SerializeField] float mainThrust = 100f;
     [SerializeField] float levelLoadDelay = 2f;
 
@@ -16,14 +16,11 @@ public class Rocket : MonoBehaviour {
     [SerializeField] ParticleSystem successParticles;
     [SerializeField] ParticleSystem deathParticles;
 
-
     Rigidbody rigidBody;
     AudioSource audioSource;
-    //Превосходя
-    bool isTransitioning = false;   // умер или нет
+    bool isTransitioning = false;   // died  or not
 
     bool collisionsDisabled = false;
-
 
     // Use this for initialization
     void Start() {
@@ -35,18 +32,16 @@ public class Rocket : MonoBehaviour {
     void Update() {
         if (!isTransitioning)
         {
-            RespondToThrustInput();  //  толчёк
-            RespondToRotateInput();   // повернуть
+            RespondToThrustInput();  //  status takes off
+            RespondToRotateInput();   // rotation right left 
         }
         if(Debug.isDebugBuild)
         {
-            RespondToDebugKeeys();
-
+            RespondToDebugKeeys();  //collision On/Of
         }
-
     }
 
-    private void RespondToDebugKeeys()
+    private void RespondToDebugKeeys()   //collision On/Of
     {
        if (Input.GetKeyDown(KeyCode.L))
         {
@@ -54,15 +49,14 @@ public class Rocket : MonoBehaviour {
         }
        else if (Input.GetKeyDown(KeyCode.C))
         {
-            collisionsDisabled = !collisionsDisabled; //collision On/Of
+            collisionsDisabled = !collisionsDisabled;
         }
     }
 
-    void OnCollisionEnter(Collision collision)    // столкновение обьектов
+    void OnCollisionEnter(Collision collision)    // objects collision
     {
-        if (isTransitioning || collisionsDisabled) { return; }     //ignore Collisions игнор столкновения}
+        if (isTransitioning || collisionsDisabled) { return; }     //ignore Collisions 
        
- 
         switch (collision.gameObject.tag)
         {
             case "Friendly":
@@ -73,44 +67,43 @@ public class Rocket : MonoBehaviour {
             default:
                 StartDeathSequence();
                 break;
-        }
-          
+        }        
     }
-    private void StartSuccessSequence()   // статус прошел
+    private void StartSuccessSequence()   // win
     {
         isTransitioning = true;
         audioSource.Stop();
         audioSource.PlayOneShot(success);
         successParticles.Play();
-        Invoke("LoadNextLevel", levelLoadDelay);   //Invoke задержка в 
+        Invoke("LoadNextLevel", levelLoadDelay);   
     }
 
-    private void StartDeathSequence()   //статус умер
+    private void StartDeathSequence()   //status died
     {
         isTransitioning = true;
         audioSource.Stop();
         audioSource.PlayOneShot(death);
         deathParticles.Play();
-        Invoke("LoadFirslevel", levelLoadDelay);   //Invoke задержка в 
+        Invoke("LoadFirslevel", levelLoadDelay); 
     }
 
     private void LoadNextLevel()
     {
-        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;  // int потому что индекс целый номер.
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;  
         int nextSceneIndex = currentSceneIndex + 1;
         if (nextSceneIndex == SceneManager.sceneCountInBuildSettings)
         {
             nextSceneIndex = 0;
         }
-        SceneManager.LoadScene(nextSceneIndex); // больше чем для 2х уровней
+        SceneManager.LoadScene(nextSceneIndex); // more than 2 levels 
     }
 
     private void LoadFirslevel()
     {
-        SceneManager.LoadScene(0); // больше чем для 2х уровней
+        SceneManager.LoadScene(0); 
     }
 
-    private void RespondToThrustInput() // Взлет
+    private void RespondToThrustInput() // status takes off  (true)
     {
         
         if (Input.GetKey(KeyCode.Space))
@@ -124,7 +117,7 @@ public class Rocket : MonoBehaviour {
         }
     }
 
-    private void StopApplyingThrust()
+    private void StopApplyingThrust() // status takes off (false)
     {
         audioSource.Stop();
         mainEngineParticles.Stop();
@@ -138,11 +131,11 @@ public class Rocket : MonoBehaviour {
             audioSource.PlayOneShot(mainEngine);
         }
         mainEngineParticles.Play();
-    }   //управление взлетом
+    }   
 
-    private void RespondToRotateInput()   // ротация право лево
+    private void RespondToRotateInput()   // rotation right left 
     {
-        rigidBody.angularVelocity = Vector3.zero; //  удалите вращение из-за физики
+        rigidBody.angularVelocity = Vector3.zero; //  remuve physics rotation
 
         float rotationThisFrame = rcsThrust * Time.deltaTime;
 
